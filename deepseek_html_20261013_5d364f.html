@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>送东阳马生序 · 趣味闯关</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Comic Sans MS', '幼圆', 'Yuanti SC', sans-serif;
+      background: linear-gradient(145deg, #1e3c2c 0%, #2d5a3d 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .game-container {
+      background: #fef9e6;
+      background-image: radial-gradient(circle at 20% 30%, #fff7d7 0%, #f4e9c6 100%);
+      border-radius: 60px 60px 40px 40px;
+      box-shadow: 0 25px 35px rgba(0, 0, 0, 0.6), inset 0 2px 5px rgba(255, 255, 240, 0.8);
+      max-width: 750px;
+      width: 100%;
+      padding: 2rem 1.8rem 2rem;
+      border: 6px solid #b48b5a;
+      position: relative;
+      transition: transform 0.2s;
+    }
+
+    /* 卷轴装饰 */
+    .game-container::before,
+    .game-container::after {
+      content: '';
+      position: absolute;
+      top: 20px;
+      bottom: 20px;
+      width: 22px;
+      background: #8b5a2b;
+      border-radius: 20px;
+      box-shadow: inset 0 0 10px #3a1f0b, 0 5px 10px rgba(0,0,0,0.4);
+    }
+    .game-container::before {
+      left: -14px;
+    }
+    .game-container::after {
+      right: -14px;
+    }
+
+    /* 标题区域 */
+    .title-area {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .title-area h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #4a2e1b;
+      text-shadow: 4px 4px 0 #e6cfa0, 2px 2px 0 #a97c4b;
+      letter-spacing: 6px;
+      transform: rotate(-1deg);
+      display: inline-block;
+      background: #fcf3da;
+      padding: 0.2rem 1.8rem;
+      border-radius: 100px;
+      border: 3px solid #c9a87c;
+    }
+
+    .title-area .sub {
+      font-size: 1rem;
+      color: #6e4f2e;
+      background: #eadbba;
+      display: inline-block;
+      padding: 0.2rem 1.5rem;
+      border-radius: 30px;
+      margin-top: 0.3rem;
+      font-style: italic;
+      box-shadow: inset 0 1px 4px #b3926b;
+    }
+
+    /* 进度和分数 */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #be9b6b;
+      padding: 0.6rem 1.5rem;
+      border-radius: 50px;
+      margin-bottom: 1.8rem;
+      color: #1f2e1a;
+      font-weight: bold;
+      border: 2px solid #6b4c2c;
+      box-shadow: inset 0 2px 5px #e7d7b5, 0 4px 0 #4b341b;
+    }
+
+    .progress-badge {
+      background: #2d4a2d;
+      color: #f6f0d7;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 1rem;
+      letter-spacing: 1px;
+    }
+
+    .score-badge {
+      background: #ddb87a;
+      color: #2f1e0c;
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 1rem;
+      border: 2px solid #ab8a56;
+    }
+
+    /* 卡片——问题区 */
+    .quiz-card {
+      background: #fffcf0;
+      border-radius: 70px 20px 70px 20px;
+      padding: 1.8rem 1.8rem 1.8rem 2.2rem;
+      box-shadow: 0 12px 0 #8b6f4c, 0 10px 20px rgba(0, 0, 0, 0.3);
+      border: 3px solid #c9a87c;
+      margin-bottom: 1.5rem;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .question-text {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #2c3a1f;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+      display: flex;
+      gap: 0.5rem;
+      align-items: baseline;
+    }
+
+    .question-text .num-badge {
+      background: #6f4e2e;
+      color: #ffefc0;
+      border-radius: 50%;
+      width: 2rem;
+      height: 2rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      flex-shrink: 0;
+      box-shadow: 0 4px 0 #3d2b18;
+    }
+
+    /* 选项列表 */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .option-btn {
+      background: #f3ebd2;
+      border: 3px solid #b48b5a;
+      border-radius: 50px;
+      padding: 0.9rem 1.5rem;
+      font-size: 1.15rem;
+      text-align: left;
+      font-weight: 500;
+      color: #2e261a;
+      cursor: pointer;
+      transition: all 0.15s;
+      box-shadow: 0 5px 0 #7e613f, 0 4px 8px rgba(0, 0, 0, 0.1);
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #ffeab3;
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 #7e613f, 0 8px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .option-btn:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #7e613f;
+    }
+
+    .option-btn.correct-guess {
+      background: #b1d8a8;
+      border-color: #3f7840;
+      box-shadow: 0 4px 0 #2a562b;
+      color: #1b3c1b;
+    }
+
+    .option-btn.wrong-guess {
+      background: #f3b9b9;
+      border-color: #b33f3f;
+      box-shadow: 0 4px 0 #7a2e2e;
+      color: #4f1e1e;
+    }
+
+    .option-btn.disabled-true {
+      opacity: 0.8;
+      cursor: not-allowed;
+    }
+
+    .option-prefix {
+      font-weight: 800;
+      background: #d9c39b;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #3b2b15;
+      font-size: 1rem;
+      flex-shrink: 0;
+      border: 2px solid #ab8a56;
+    }
+
+    /* 反馈信息 */
+    .feedback {
+      margin-top: 1.2rem;
+      font-size: 1rem;
+      padding: 0.8rem 1.2rem;
+      border-radius: 30px;
+      background: #ece2c1;
+      border-left: 8px solid #b48b5a;
+      color: #3a2c18;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* 下一题按钮 */
+    .next-btn {
+      background: #2d5a3d;
+      border: none;
+      color: #fdf8e7;
+      font-weight: bold;
+      font-size: 1.3rem;
+      padding: 0.9rem 2.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #1a3825, 0 8px 15px rgba(0, 0, 0, 0.3);
+      transition: all 0.1s;
+      letter-spacing: 3px;
+      display: block;
+      margin: 0 auto 0.5rem;
+      width: fit-content;
+      border: 2px solid #b9a577;
+    }
+
+    .next-btn:hover:not(:disabled) {
+      background: #3c704c;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 0 #1a3825, 0 12px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .next-btn:active:not(:disabled) {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #1a3825;
+    }
+
+    .next-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: 0 4px 0 #1a3825;
+      transform: translateY(4px);
+    }
+
+    /* 游戏结束 */
+    .result-screen {
+      text-align: center;
+      padding: 1rem 0.5rem;
+    }
+
+    .result-screen h2 {
+      font-size: 2.2rem;
+      color: #2d4a2d;
+      text-shadow: 2px 2px 0 #d9c39b;
+      margin-bottom: 1rem;
+    }
+
+    .score-display {
+      font-size: 3.8rem;
+      font-weight: 800;
+      background: #6f4e2e;
+      color: #ffefc0;
+      display: inline-block;
+      padding: 0.3rem 1.8rem;
+      border-radius: 60px;
+      box-shadow: 0 8px 0 #3d2b18, inset 0 2px 10px #e7d7b5;
+      margin: 0.8rem 0 1.2rem;
+      letter-spacing: 4px;
+      border: 2px solid #dbb87c;
+    }
+
+    .result-message {
+      font-size: 1.3rem;
+      background: #efe3c9;
+      padding: 1.2rem;
+      border-radius: 40px;
+      border: 3px dashed #a97c4b;
+      color: #3a2c18;
+      margin: 1.2rem 0 1.8rem;
+      line-height: 1.6;
+    }
+
+    .restart-btn {
+      background: #b48b5a;
+      border: none;
+      color: #1f2e1a;
+      font-weight: bold;
+      font-size: 1.3rem;
+      padding: 0.9rem 2.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 0 #6b4c2c, 0 8px 15px rgba(0, 0, 0, 0.3);
+      transition: all 0.1s;
+      letter-spacing: 2px;
+      border: 2px solid #e7cf9c;
+      margin-top: 0.5rem;
+    }
+
+    .restart-btn:hover {
+      background: #c9a46b;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 0 #6b4c2c, 0 12px 18px rgba(0, 0, 0, 0.3);
+    }
+
+    .restart-btn:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #6b4c2c;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* 小装饰 */
+    .leaf-deco {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.3;
+      user-select: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+<div class="game-container" id="gameContainer">
+  <!-- 装饰小叶子 -->
+  <span class="leaf-deco" style="top: -10px; left: 10px; transform: rotate(-15deg);">🍃</span>
+  <span class="leaf-deco" style="bottom: -5px; right: 5px; transform: rotate(25deg);">📜</span>
+
+  <!-- 标题区 -->
+  <div class="title-area">
+    <h1>送东阳马生序</h1>
+    <div class="sub">⚡ 勤学闯关 · 十问十答 ⚡</div>
+  </div>
+
+  <!-- 状态栏 -->
+  <div class="status-bar">
+    <div class="progress-badge" id="progressDisplay">第 1 / 10 题</div>
+    <div class="score-badge" id="scoreDisplay">✓ 0 分</div>
+  </div>
+
+  <!-- 游戏主面板（题目/结果） -->
+  <div id="quizPanel">
+    <div class="quiz-card" id="quizCard">
+      <div class="question-text" id="questionText">
+        <span class="num-badge" id="qNum">1</span>
+        <span id="qText">加载题目中...</span>
+      </div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="feedback hidden" id="feedbackMsg"></div>
+    </div>
+    <button class="next-btn" id="nextBtn" disabled>下一题 ▶</button>
+  </div>
+
+  <!-- 结果面板 -->
+  <div id="resultPanel" class="result-screen hidden">
+    <h2>🎉 闯关完成 🎉</h2>
+    <div class="score-display" id="finalScore">0 / 10</div>
+    <div class="result-message" id="resultMessage"></div>
+    <button class="restart-btn" id="restartBtn">📖 再来一卷</button>
+  </div>
+</div>
+
+<script>
+  // ---------- 题库（十题，多样化：单选、判断、填空式单选）----------
+  const questions = [
+    { // 1
+      type: 'choice',
+      question: '宋濂写《送东阳马生序》的直接目的是什么？',
+      options: ['炫耀自己当年求学之苦', '勉励同乡后学马生专心向学', '批评太学生条件太好却不努力', '向皇帝表明自己的忠心和学识'],
+      answer: 1,
+      explanation: '✅ 宋濂以自身经历劝勉马生珍惜优越条件、专心求学，并非炫耀或批评。'
+    },
+    { // 2
+      type: 'choice',
+      question: '文中“以中有足乐者”的“乐”指的是什么？',
+      options: ['考取功名后的荣耀', '读书求学带来的精神满足', '和同舍生一起游玩的快乐', '得到老师表扬的喜悦'],
+      answer: 1,
+      explanation: '✅ “以中有足乐者”指内心有足以快乐的事，即读书求学的精神满足。'
+    },
+    { // 3
+      type: 'choice',
+      question: '宋濂认为太学生“业有不精，德有不成”的根本原因是什么？',
+      options: ['天资不够聪明', '老师教得不好', '心不若余之专耳', '家里没有钱买书'],
+      answer: 2,
+      explanation: '✅ 原文：“非天质之卑，则心不若余之专耳”——根本原因是专心程度不够。'
+    },
+    { // 4 判断式单选
+      type: 'choice',
+      question: '“同舍生皆被绮绣……余则缊袍敝衣处其间，略无慕艳意。”宋濂为什么能如此坦然？',
+      options: ['他家里其实很有钱，故意穿破衣服', '他内心有更高的追求，精神富足超越物质攀比', '他性格孤僻，不喜欢和同学交往', '他怕被老师批评，不敢攀比'],
+      answer: 1,
+      explanation: '✅ 因为“以中有足乐者，不知口体之奉不若人也”——心中有追求，便不觉得物质不如人。'
+    },
+    { // 5
+      type: 'choice',
+      question: '下列哪一句最能概括《送东阳马生序》的主旨？',
+      options: ['天大寒，砚冰坚，手指不可屈伸', '其业有不精，德有不成者，非天质之卑，则心不若余之专耳', '余故道为学之难以告之', '盖余之勤且艰若此'],
+      answer: 1,
+      explanation: '✅ 这句点明了核心：学业品德不成，是因为“不专心”，而非天资或条件。'
+    },
+    { // 6
+      type: 'choice',
+      question: '宋濂在文中多处运用对比，下列哪一项不是他用来对比的内容？',
+      options: ['自己无书可读 vs 太学生有书可读', '自己求师艰难 vs 太学生有老师可问', '自己生活困苦 vs 太学生衣食无忧', '自己天资聪颖 vs 太学生天资愚钝'],
+      answer: 3,
+      explanation: '✅ 文中并未对比天资，反而说“非天质之卑”，强调专心与否才是关键。'
+    },
+    { // 7
+      type: 'choice',
+      question: '“余立侍左右，援疑质理，俯身倾耳以请”表现了宋濂怎样的态度？',
+      options: ['害怕老师，不敢说话', '恭敬求教，虚心学习', '敷衍了事，走走形式', '故意表现给同学看'],
+      answer: 1,
+      explanation: '✅ 这体现了宋濂对老师的恭敬和求学的虚心。'
+    },
+    { // 8
+      type: 'choice',
+      question: '如果给宋濂的朋友圈配文，哪一句最符合他写《送东阳马生序》时的心声？',
+      options: ['“当年吃过的苦，现在终于可以炫耀了”', '“我条件那么差都能学成，你们条件这么好，更要专心啊”', '“太学生们太幸福了，我羡慕嫉妒”', '“读书无用，不如早点工作”'],
+      answer: 1,
+      explanation: '✅ 宋濂是以长者身份真诚劝勉：条件好了，更应专心向学。'
+    },
+    { // 9
+      type: 'choice',
+      question: '“以中有足乐者，不知口体之奉不若人也”给你的学习启示是？',
+      options: ['吃穿不如别人就会被人看不起', '只要内心有目标，就不怕物质条件差', '必须过苦日子才能学习好', '不要和同学比吃穿，但要比谁更穷'],
+      answer: 1,
+      explanation: '✅ 精神富足可以超越物质攀比，专注目标才是关键。'
+    },
+    { // 10
+      type: 'choice',
+      question: '宋濂讲述自己“负箧曳屣，行深山巨谷中”的经历，主要用意是？',
+      options: ['说明自己身体好，不怕冷', '强调求学之路艰难，反衬太学生条件优越', '告诉马生应该多锻炼身体', '记录自己的旅行见闻'],
+      answer: 1,
+      explanation: '✅ 通过自身求学之苦，与太学生之易形成对比，劝勉马生珍惜条件、专心向学。'
+    }
+  ];
+
+  // ---------- 游戏状态 ----------
+  let currentIndex = 0;
+  let score = 0;
+  let answered = false;       // 当前题目是否已经作答
+  let selectedOption = null;
+
+  // DOM 元素
+  const quizPanel = document.getElementById('quizPanel');
+  const resultPanel = document.getElementById('resultPanel');
+  const progressDisplay = document.getElementById('progressDisplay');
+  const scoreDisplay = document.getElementById('scoreDisplay');
+  const questionText = document.getElementById('qText');
+  const qNum = document.getElementById('qNum');
+  const optionsContainer = document.getElementById('optionsContainer');
+  const feedbackMsg = document.getElementById('feedbackMsg');
+  const nextBtn = document.getElementById('nextBtn');
+  const finalScore = document.getElementById('finalScore');
+  const resultMessage = document.getElementById('resultMessage');
+  const restartBtn = document.getElementById('restartBtn');
+
+  // 字母前缀
+  const letters = ['A', 'B', 'C', 'D'];
+
+  // ---------- 渲染当前题目 ----------
+  function renderQuestion() {
+    const q = questions[currentIndex];
+    // 更新进度
+    progressDisplay.textContent = `第 ${currentIndex + 1} / ${questions.length} 题`;
+    scoreDisplay.textContent = `✓ ${score} 分`;
+    qNum.textContent = currentIndex + 1;
+    questionText.textContent = q.question;
+
+    // 清除旧选项和反馈
+    optionsContainer.innerHTML = '';
+    feedbackMsg.classList.add('hidden');
+    feedbackMsg.innerHTML = '';
+    answered = false;
+    selectedOption = null;
+
+    // 生成选项按钮
+    q.options.forEach((opt, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="option-prefix">${letters[idx]}</span>${opt}`;
+      btn.dataset.index = idx;
+      btn.addEventListener('click', () => handleOptionClick(idx));
+      optionsContainer.appendChild(btn);
+    });
+
+    // 恢复下一题按钮状态
+    nextBtn.disabled = true;
+    // 如果已经是最后一题，改变按钮文字（但功能不变）
+    if (currentIndex === questions.length - 1) {
+      nextBtn.textContent = '查看结果 🎯';
+    } else {
+      nextBtn.textContent = '下一题 ▶';
+    }
+
+    // 如果已经答过? 这里每次都是新题，重置状态
+  }
+
+  // ---------- 处理选项点击 ----------
+  function handleOptionClick(idx) {
+    if (answered) return;   // 已经回答过
+
+    const q = questions[currentIndex];
+    const allBtns = document.querySelectorAll('.option-btn');
+    // 标记已选
+    selectedOption = idx;
+    answered = true;
+
+    // 判断正误
+    const isCorrect = (idx === q.answer);
+
+    // 更新得分
+    if (isCorrect) {
+      score += 1;
+      scoreDisplay.textContent = `✓ ${score} 分`;
+    }
+
+    // 样式处理：正确选项变绿，错误选项变红，同时禁用所有按钮
+    allBtns.forEach((btn, i) => {
+      btn.classList.add('disabled-true');
+      btn.disabled = true;
+      if (i === q.answer) {
+        btn.classList.add('correct-guess');
+      } else if (i === idx && !isCorrect) {
+        btn.classList.add('wrong-guess');
+      }
+    });
+
+    // 显示反馈（鼓励或解析）
+    feedbackMsg.classList.remove('hidden');
+    if (isCorrect) {
+      feedbackMsg.innerHTML = `🎉 答对啦！ ${q.explanation}`;
+      feedbackMsg.style.borderLeftColor = '#3f7840';
+      feedbackMsg.style.background = '#e1f0db';
+    } else {
+      const correctLetter = letters[q.answer];
+      feedbackMsg.innerHTML = `📖 再想想～ 正确答案是 ${correctLetter}。${q.explanation}`;
+      feedbackMsg.style.borderLeftColor = '#b33f3f';
+      feedbackMsg.style.background = '#f7e1e1';
+    }
+
+    // 启用下一题按钮
+    nextBtn.disabled = false;
+  }
+
+  // ---------- 下一题 / 查看结果 ----------
+  function handleNext() {
+    if (nextBtn.disabled) return;
+
+    if (currentIndex < questions.length - 1) {
+      // 进入下一题
+      currentIndex++;
+      renderQuestion();
+    } else {
+      // 已经是最后一题，显示结果面板
+      showResult();
+    }
+  }
+
+  // ---------- 显示最终结果 ----------
+  function showResult() {
+    quizPanel.classList.add('hidden');
+    resultPanel.classList.remove('hidden');
+
+    finalScore.textContent = `${score} / ${questions.length}`;
+
+    // 根据分数生成评语
+    let message = '';
+    const percent = (score / questions.length) * 100;
+    if (percent === 100) {
+      message = '🏆 太厉害了！你完全读懂了宋濂的苦心！业精德成，心专而已！';
+    } else if (percent >= 80) {
+      message = '🌟 非常棒！你已经领悟了《送东阳马生序》的精髓，再复习一下就更完美了。';
+    } else if (percent >= 60) {
+      message = '📚 不错哦！大部分主旨你都掌握了，再回顾一下对比手法和关键句吧。';
+    } else if (percent >= 30) {
+      message = '💪 加油！建议重读课文，尤其注意宋濂的对比用意和“心专”的结论。';
+    } else {
+      message = '🌱 别灰心！再读读课文，体会宋濂“以中有足乐者”的境界，你会豁然开朗。';
+    }
+    resultMessage.textContent = message;
+
+    // 更新进度条小显示
+    progressDisplay.textContent = `完成！`;
+    scoreDisplay.textContent = `✓ ${score} 分`;
+  }
+
+  // ---------- 重新开始游戏 ----------
+  function restartGame() {
+    currentIndex = 0;
+    score = 0;
+    answered = false;
+    selectedOption = null;
+
+    // 隐藏结果，显示题目面板
+    resultPanel.classList.add('hidden');
+    quizPanel.classList.remove('hidden');
+
+    // 重置进度显示
+    progressDisplay.textContent = `第 1 / 10 题`;
+    scoreDisplay.textContent = `✓ 0 分`;
+
+    // 渲染第一题
+    renderQuestion();
+  }
+
+  // ---------- 事件绑定 ----------
+  nextBtn.addEventListener('click', handleNext);
+  restartBtn.addEventListener('click', restartGame);
+
+  // 初始化
+  renderQuestion();
+
+</script>
+</body>
+</html>
